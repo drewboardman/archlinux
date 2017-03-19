@@ -228,4 +228,4 @@ Guest Port = 22
 ssh -p 2222 username@localhost
 ```
 
-    - Just enter the password and you're in
+  4. Just enter the password and you're in
