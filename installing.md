@@ -182,7 +182,7 @@ You need the `virtualbox-guest-utils` on your arch instance to be able to go
   3. Now you need X.
 
 ```bash
-sudo pacman -S xorg xorg-server
+sudo pacman -S xorg xorg-server xterm
 ```
   - Just go with the default options
   4. Now add `exec i3` to `.xinitrc`
@@ -198,5 +198,33 @@ xrandr --listmonitors
 xrandr --output VGA-1 --mode 1920x1080
 ```
 
+Adding SSH for helpful debugging
+===========================
+  - Sometimes you'll need to kill processes, but your input is messed up on your
+    VM. We're going to install `ssh` so that you can connect from the host and
+kill stuff if needed. NOTE: you'll need to have a root and user password set to
+be able to do this. Also you have to ssh as a user, can't ssh as root.
+  1. On the guest (arch) instance.
+```bash
+sudo pacman -S openssh
+systemctl enable sshd
+systemctl start sshd
+```
 
+  2. On the VirtualBox settings.
+    - Go to Machine -> Settings -> Network -> Port Forwarding
+    - Click add a port
+    - Ignore Name/Host IP/Guest IP
+    - Protocol needs to be TCP
+    - The host port needs to be greater than 1024, so for an example set
+```bash
+Protocol = TCP
+Host Port = 2222
+Guest Port = 22
+```
 
+  3. Connect from host
+```bash
+ssh -p 2222 username@localhost
+```
+    - Just enter the password and you're in
