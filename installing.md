@@ -177,7 +177,7 @@ You need the `virtualbox-guest-utils` on your arch instance to be able to go
 *truly* fullscreen
   1. run `sudo pacman -S virtualbox-guest-utils` and when prompted get the
      `arch` option
-  2. You're user should be in the `audio` and `video` groups (should have been
+  2. Your user should be in the `audio` and `video` groups (should have been
      completed when creating user)
   3. Now you need X.
 
