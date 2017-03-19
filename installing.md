@@ -142,10 +142,26 @@ useradd -m -G wheel -s /bin/zsh drew
 ```bash
 visudo
 ```
-Find and uncomment the following line:
+Find and uncomment the following lines:
 
 ```
  %wheel ALL=(ALL) ALL
+ %wheel ALL=(ALL) NOPASSWD: ALL
 ```
 
   3. Switch to the user with `su drew`
+
+### Fullscreen in VirtualBox
+You need the `virtualbox-guest-utils` on your arch instance to be able to go
+*truly* fullscreen
+  1. run `sudo pacman -S virtualbox-guest-utils` and when prompted get the
+     `arch` option
+  2. Now you need X.
+
+```bash
+sudo pacman -S xorg xorg-server
+```
+  - Just go with the default options
+
+need to write xterm, xorg-server, xorg-xinit
+
