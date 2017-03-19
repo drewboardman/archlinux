@@ -147,3 +147,5 @@ Find and uncomment the following line:
 ```
  %wheel ALL=(ALL) ALL
 ```
+
+  3. Switch to the user with `su drew`
