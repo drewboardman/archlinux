@@ -248,13 +248,13 @@ You need the `virtualbox-guest-utils` on your arch instance to be able to go
 pacman -S xorg xorg-server xorg-xinit xterm i3
 ```
   - Just go with the default options
-  4. Now add `exec i3` to `.xinitrc`
+  2. Now add `exec i3` to `.xinitrc`
 Note: you need to `logout` and log in as another user if you want them to be
 able to run `startx`
-  5. `logout` and log back in. NOTE: You cannot run startx unless you logged in as that user. So if you
+  3. `logout` and log back in. NOTE: You cannot run startx unless you logged in as that user. So if you
      need to run `logout`, do that before startx. You'll need to do this if you
 logged in as `root` and `su user` at any time.
-  6. Now run `startx`. When in i3 type *MOD+ENTER*. Now to get it to fullscreen,
+  4. Now run `startx`. When in i3 type *MOD+ENTER*. Now to get it to fullscreen,
      check your display and use the command.
 ```bash
 xrandr --listmonitors
