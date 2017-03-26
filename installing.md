@@ -45,9 +45,11 @@ partitions - that look like there are really 4. Here is a brief overview
     the bootable & primary. The `/home` is going to be the primary partition
 that's *under* an extended. In my case
 these were `/dev/sda1` and `/dev/sda5`.
+  - For the EFI System, it needs to be formatted as `FAT32`
 ```bash
 mkfs.ext4 /dev/sda1
 mkfs.ext4 /dev/sda5
+mkfs.fat -F32 /dev/sdaY
 ```
 
 ### Mounting and Swap
@@ -58,10 +60,12 @@ mkswap /dev/sda2
 swapon /dev/sda2
 ```
   - You need to mount the home and root directories
+  - Also you need the `/boot` directory for installing the EFI bootloader later
 ```bash
 mount /dev/sda1 /mnt
 mkdir /mnt/home
 mount /dev/sda5 /mnt/home
+mount /dev/sda2 /boot
 ```
 
 Installing Arch on your filesystems that you created
@@ -85,7 +89,30 @@ Additional Steps
   1. Change root into the `/mnt` file system
 
 ```bash
-arch-chroot /mnt
+arch-chroot /mnt /bin/bash
+```
+
+### UEFI Added steps
+  - you need to setup grub on the EFI system
+
+  1. Now that you're `chroot`ed into `/mnt` install `grub` and `efibootmgr`
+
+```bash
+pacman -S grub efibootmgr
+```
+
+  2. Now install grub onto the EFI system with the following command
+
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
+```
+
+  3. Check that the main grub directory was installed in `/boot/grub` with `ls`
+     or something
+  4. Generate the grub configuration file
+
+```bash
+grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
   2. Install vim `pacman -S vim`
