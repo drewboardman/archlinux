@@ -183,14 +183,16 @@ reboot
 
 Part 2
 ======
-  - Your networking might not be working at this point. If you're running Arch
-    inside VirtualBox, run the command `systemctl enable dhcpcd@enp0s3.service` 
+  - Find your network interfaces via `ip addr` and initialize them with `dhccpd
+    <interface>`
+  - If you're running Arch inside VirtualBox, run the command `systemctl enable dhcpcd@enp0s3.service` 
 
   1. Once you get your networking shit together, update packages `pacman -Syyu`
   2. Enable multilib in `/etc/pacman.conf`
-  3. Go into `/etc/pacman.d/mirrorlist` and move some of the United States
+  3. You'll need to sync your packages with `pacman -Syy`
+  4. Go into `/etc/pacman.d/mirrorlist` and move some of the United States
      mirrors to the top (Arch prioritizes mirrors from top>bottom)
-  4. Install `zsh` (you're going to set it as the default shell for your user)
+  5. Install `zsh` (you're going to set it as the default shell for your user)
     - `pacman -S zsh`
 
 ### Creating a user
@@ -213,6 +215,7 @@ gpasswd --add drew video
 gpasswd --add drew audio
 ```
   3. Double check by running the command `groups`
+  4. Make a password for your user `passwd drew`
 
 
 #### Adding new user to `sudo`ers
@@ -229,7 +232,6 @@ Find and uncomment the following lines:
 ```
 
   3. Set the root passwd with `passwd`
-  4. Switch to the user with `su drew`
 
 ### Fullscreen in VirtualBox
 You need the `virtualbox-guest-utils` on your arch instance to be able to go
@@ -238,10 +240,12 @@ You need the `virtualbox-guest-utils` on your arch instance to be able to go
      `arch` option
   2. Your user should be in the `audio` and `video` groups (should have been
      completed when creating user)
-  3. Now you need X.
+
+### i3 and X
+  1. Now you need X and i3
 
 ```bash
-sudo pacman -S xorg xorg-server xterm
+pacman -S xorg xorg-server xorg-xinit xterm i3
 ```
   - Just go with the default options
   4. Now add `exec i3` to `.xinitrc`
