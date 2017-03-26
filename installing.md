@@ -13,9 +13,17 @@ VB specific config
 
 Initial Setup of System
 -----------------------
-The first step is to partition the disks. I used
-[*parted*](https://wiki.archlinux.org/index.php/GNU_Parted) for this.
+I tried using `parted` for this, but the commands are easy to mess up. I
+switched to using `cfdisk`
+
+  - Note: when partitioning via `cfdisk` I found that deleting current
+    partitions wasn't being saved, the partitions still existed. I fixed this by
+using `cgdisk`.
 ### Partitioning the disk (`cfdisk`)
+
+  - **Note about UEFI** setup: you need another (small ~ 512MB) partition to
+    hold the EFI System loader.
+
   1. In my opinion, `cfdisk` is way easier than `parted`. The reason is that
      doing *start/end* with percentages gets weird when you add a swap into the
 mix
@@ -27,6 +35,7 @@ partitions - that look like there are really 4. Here is a brief overview
     - Boot: `New -> select size -> select primary -> make bootable -> write ->
       'yes'`
     - Swap: `New -> select size -> select primary -> write -> 'yes'
+    - EFI: `New -> 513M -> select 'Type' == 'EFI System'
     - Home: This one is a bit trickier. It's a partion *inside* an extended
       partition. So it has 2 parts.
       - `New -> select size -> select extended.` Now select the `Free Space` that should appear under this partition. `New -> select size -> write -> 'yes'`
@@ -43,6 +52,7 @@ mkfs.ext4 /dev/sda5
 
 ### Mounting and Swap
   - Set the swap directory
+    - You may get output that says `no label`. This is normal
 ```bash
 mkswap /dev/sda2
 swapon /dev/sda2
@@ -72,13 +82,13 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 Additional Steps
 ----------------
-  1. Install vim `pacman -S vim`
-  2. Change root into the `/mnt` file system
+  1. Change root into the `/mnt` file system
 
 ```bash
 arch-chroot /mnt
 ```
 
+  2. Install vim `pacman -S vim`
   3. Set hostname with
 ```bash
 echo <hostnameYouChoose> > /etc/hostname`
@@ -101,7 +111,8 @@ locale-gen
 touch /etc/locale.conf
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 ```
-  4. Check that the language was set up correctly with `localectl`
+  4. Check that the language was set up correctly with `localectl`. This may
+     fail. If it does, just check it later after you boot into your system.
 
 BootLoader
 ----------
