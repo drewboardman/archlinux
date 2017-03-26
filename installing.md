@@ -92,6 +92,8 @@ Additional Steps
 arch-chroot /mnt /bin/bash
 ```
 
+-----------------
+
 ### UEFI Added steps
   - you need to setup grub on the EFI system
 
@@ -114,6 +116,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 ```bash
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
+-----------------
 
   2. Install vim `pacman -S vim`
   3. Set hostname with
