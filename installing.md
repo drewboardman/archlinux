@@ -65,7 +65,7 @@ swapon /dev/sda2
 mount /dev/sda1 /mnt
 mkdir /mnt/home
 mount /dev/sda5 /mnt/home
-mount /dev/sda2 /boot
+mount /dev/sda2 /mnt/boot
 ```
 
 Installing Arch on your filesystems that you created
@@ -91,32 +91,6 @@ Additional Steps
 ```bash
 arch-chroot /mnt /bin/bash
 ```
-
------------------
-
-### UEFI Added steps
-  - you need to setup grub on the EFI system
-
-  1. Now that you're `chroot`ed into `/mnt` install `grub` and `efibootmgr`
-
-```bash
-pacman -S grub efibootmgr
-```
-
-  2. Now install grub onto the EFI system with the following command
-
-```bash
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
-```
-
-  3. Check that the main grub directory was installed in `/boot/grub` with `ls`
-     or something
-  4. Generate the grub configuration file
-
-```bash
-grub-mkconfig -o /boot/grub/grub.cfg
-```
------------------
 
   2. Install vim `pacman -S vim`
   3. Set hostname with
@@ -146,6 +120,50 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 
 BootLoader
 ----------
+**NOTE**: If you have a UEFI setup, you should use the UEFI options
+
+### UEFI Added steps
+  - you need to setup grub on the EFI system
+
+  1. Now that you're `chroot`ed into `/mnt` install `grub` and `efibootmgr`
+
+```bash
+pacman -S grub efibootmgr
+```
+
+  2. Now install grub onto the EFI system with the following command
+
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
+```
+
+  3. Check that the main grub directory was installed in `/boot/grub` with `ls`
+     or something
+  4. Generate the grub configuration file and copy it to EFI dir from step 3
+
+```bash
+grub-mkconfig -o /boot/grub/grub.cfg
+cp /boot/grub/grub.cfg /boot/EFI/grub
+```
+  
+  5. There is a bug in the bootloader process, here is the wiki explanation on
+     how to fix it (this worked for me)
+
+>Unfortunately, the `grub.cfg` file that is created will not contain the proper
+>UUID in order to boot, even if it reports no errors. see
+>https://bbs.archlinux.org/viewtopic.php?pid=1294604#p1294604. In order to fix
+>this issue the following commands:
+
+```bash
+mount /dev/sdxY /mnt        #Your root partition.
+mount /dev/sdxZ /mnt/boot   #Your boot partition (if you have one).
+arch-chroot /mnt
+pacman -S linux
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+-----------------
+
   1. `pacman -S grub os-prober`
   2. `grub-install /dev/sda`
   3. `grub-mkconfig -o /boot/grub/grub.cfg`
