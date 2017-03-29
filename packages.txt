@@ -1,0 +1,6 @@
+chromium
+termite
+adobe-source-code-pro-fonts
+openssh
+dmenu
+git
