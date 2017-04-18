@@ -131,9 +131,11 @@ BootLoader
 pacman -S grub efibootmgr
 ```
 
-  2. Now install grub onto the EFI system with the following command
+  2. Now install grub onto the EFI system with the following command. You have
+     to mount /boot WHILE YOU'RE HERE.
 
 ```bash
+mount /boot
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 ```
 
