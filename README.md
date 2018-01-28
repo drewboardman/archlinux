@@ -131,10 +131,10 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
   4. Check that the language was set up correctly with `localectl`. This may
      fail. If it does, just check it later after you boot into your system.
 
-BootLoader
+BootLoader (2 options)
 ----------
 
-### `systemd-boot`
+### Option 1: `systemd-boot`
 
 ```
 bootctl --path=/boot install
@@ -193,7 +193,8 @@ Then run
 mkinitcpio -p linux
 ```
 
-### `grub`
+### Option 2:  `grub`
+
 **NOTE**: If you have a UEFI setup, you should use the UEFI options
 
 ### UEFI Added steps
