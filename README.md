@@ -75,6 +75,8 @@ mount /dev/sda1 /mnt/boot
 
 Installing Arch on your filesystems that you created
 ---------------
+The mirror could be really slow. You can edit `/etc/pacman.d/mirrorlist`.
+
 ```bash
 pacstrap /mnt base base-devel
 ```
@@ -138,7 +140,58 @@ BootLoader
 bootctl --path=/boot install
 ```
 
-**TODO**: need to add instructions for `/usr/share/systemd/bootctl/arch.conf`
+You need to copy and edit 2 files:
+You'll also need the UUID of your **`root`** partition (This is required only for
+your root partition, not esp)
+
+```
+cp /usr/share/systemd/bootctl/loader.conf /boot/loader/entries/
+cp /usr/share/systemd/bootctl/arch.conf /boot/loader/entries/
+blkid -s PARTUUID -o value /dev/sda3
+```
+
+First you want to edit `loader.conf` and have the following:
+
+```
+default  arch
+timeout  4
+editor   0
+```
+
+To make the next step easier:
+
+```
+echo `blkid -s PARTUUID -o value /dev/sda3` >> /boot/loader/entries/arch.conf
+```
+
+Next edit `arch.conf`:
+
+```
+title Arch Linux
+linux /vmlinuz-linux
+initrd /initramfs-linux.img
+options root=PARTUUID=6b18a3fe-6311-4fa7-810a-effe98500 rw
+```
+
+Now run
+
+```
+bootctl update
+```
+
+If you're using a Dell XPS 13 (9360) - you need the `nvme` modules.
+
+```
+#/etc/mkinitcpio.conf
+
+MODULES=(nvme)
+```
+
+Then run
+
+```
+mkinitcpio -p linux
+```
 
 ### `grub`
 **NOTE**: If you have a UEFI setup, you should use the UEFI options
@@ -194,7 +247,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 Final
 -----
-Finally, exit from the chrrot, unmount the partitions and reboot your Arch
+Finally, exit from the chroot, unmount the partitions and reboot your Arch
 Linux. Make sure you have removed the installation media too.
 
 ```bash
