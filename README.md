@@ -16,56 +16,61 @@ Initial Setup of System
 I tried using `parted` for this, but the commands are easy to mess up. I
 switched to using `cfdisk`
 
-  - Note: when partitioning via `cfdisk` I found that deleting current
-    partitions wasn't being saved, the partitions still existed. I fixed this by
-using `cgdisk`.
+  - Note: when partitioning via `cfdisk` I found that deleting current partitions wasn't being saved, the partitions still existed. I fixed this by
+    using `cfdisk`. In my opinion, `cfdisk` is way easier than `parted`. The reason is that doing *start/end* with percentages gets weird when you add
+    a swap into the mix
+
 ### Partitioning the disk (`cfdisk`)
-
+![It should look like this](cfdisk.png)
   - **Note about UEFI** setup: you need another (small ~ 512MB) partition to
-    hold the EFI System loader.
+    hold the EFI(`esp`) System loader.
 
-  1. In my opinion, `cfdisk` is way easier than `parted`. The reason is that
-     doing *start/end* with percentages gets weird when you add a swap into the
-mix
-  2. Run `cfdisk /dev/sda`. Pick `dos`
-  3. There is a decent tutorial
-     [here](https://www.ostechnix.com/install-arch-linux-latest-version/).
-Basically just follow the steps in the gui. You're going to end up with 3
-partitions - that look like there are really 4. Here is a brief overview
-    - Boot: `New -> select size -> select primary -> make bootable -> write ->
-      'yes'`
-    - Swap: `New -> select size -> select primary -> write -> 'yes'
-    - EFI: `New -> 513M -> select 'Type' == 'EFI System'
-    - Home: This one is a bit trickier. It's a partion *inside* an extended
-      partition. So it has 2 parts.
-      - `New -> select size -> select extended.` Now select the `Free Space` that should appear under this partition. `New -> select size -> write -> 'yes'`
+  1. Run `cfdisk /dev/sda`. Pick `gpt`. Note: `gpt` does not use/need boot
+     flags.
+  2. There is a decent tutorial [here](https://www.ostechnix.com/install-arch-linux-latest-version/).
+     Basically just follow the steps in the gui.
+     You're going to end up with 3 partitions:
+    - EFI: `New -> 513M -> select primary -> write -> 'yes' (select EFI
+      partition type)
+    - Swap: `New -> 8G -> select primary -> write -> 'yes'
+    - Root: `New -> remaining disk -> select primary -> make bootable -> write -> 'yes'`
+
+### Partitioning the disk (`parted`)
+```
+parted /dev/sda
+(parted) mklabel gpt
+(parted) mkpart esp fat32 1MiB 513Mib
+(parted) set 1 boot on
+(parted) mkpart primary linux-swap 513MiB 8GiB
+(parted) mkpart primary ext4 8GiB 100%
+(parted) quit
+```
 
 ### Formatting the file system
-  - You need to format the `/` and `/home` partitions. The `/` is going to be
-    the bootable & primary. The `/home` is going to be the primary partition
-that's *under* an extended. In my case
-these were `/dev/sda1` and `/dev/sda5`.
+  - We are going to keep 1 partition for `/` and `/home/drew`.  The `/` is going to be the bootable & primary.
   - For the EFI System, it needs to be formatted as `FAT32`
+
 ```bash
-mkfs.ext4 /dev/sda1
-mkfs.ext4 /dev/sda5
-mkfs.fat -F32 /dev/sdaY
+mkfs.ext4 /dev/sda3      #this will be whatever your root partition is
+mkfs.fat -F32 /dev/sda1
 ```
 
 ### Mounting and Swap
   - Set the swap directory
     - You may get output that says `no label`. This is normal
+
 ```bash
 mkswap /dev/sda2
 swapon /dev/sda2
 ```
-  - You need to mount the home and root directories
+
+  - You need to mount the root directory
   - Also you need the `/boot` directory for installing the EFI bootloader later
+
 ```bash
-mount /dev/sda1 /mnt
-mkdir /mnt/home
-mount /dev/sda5 /mnt/home
-mount /dev/sda2 /mnt/boot
+mount /dev/sda3 /mnt
+mkdir -p /mnt/boot
+mount /dev/sda1 /mnt/boot
 ```
 
 Installing Arch on your filesystems that you created
@@ -73,8 +78,9 @@ Installing Arch on your filesystems that you created
 ```bash
 pacstrap /mnt base base-devel
 ```
-  - You also need to create a *File System Table* or `fstab`. There is a pretty
-    good quote about what this thing is:
+
+- You also need to create a *File System Table* or `fstab`. There is a pretty
+  good quote about what this thing is:
 
 >Fstab is configured to look for specific file systems and mount them
 >automatically in a desired way each and every time, preventing a myriad of
@@ -94,11 +100,14 @@ arch-chroot /mnt /bin/bash
 
   2. Install vim `pacman -S vim`
   3. Set hostname with
+
 ```bash
 echo <hostnameYouChoose> > /etc/hostname`
 hostname -F /etc/hostname
 ```
-    - also you want to change the /etc/hosts to have
+
+- also you want to change the /etc/hosts to have
+
 ```
 127.0.0.1  localhost.localdomain   localhost
 ::1        localhost.localdomain   localhost
@@ -110,16 +119,28 @@ Locale
   1. You actually need to do this, one reason is for i3 to function properly
   2. Go into /etc/locale.gen and uncomment `en_US.UTF-8 UTF-8`
   3. Generate the locales and set the LANG variable
+
 ```bash
 locale-gen
 touch /etc/locale.conf
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 ```
+
   4. Check that the language was set up correctly with `localectl`. This may
      fail. If it does, just check it later after you boot into your system.
 
 BootLoader
 ----------
+
+### `systemd-boot`
+
+```
+bootctl --path=/boot install
+```
+
+**TODO**: need to add instructions for `/usr/share/systemd/bootctl/arch.conf`
+
+### `grub`
 **NOTE**: If you have a UEFI setup, you should use the UEFI options
 
 ### UEFI Added steps
